@@ -87,16 +87,15 @@ public class LevelEditorWindow : EditorWindow
     {
         SceneView.duringSceneGui -= OnSceneGUI;
         EditorIsActive = false;
-        handle.Destroy();
-        handle = null;
-        objectPlacement = null;
+        handle.Destroy();        
+        ScriptableObject.DestroyImmediate(handle);
         ToolbarOption1();
         SceneView.RepaintAll();
     }
 
     #endregion
 
-    #region WindowLayout
+    #region Layout
 
     private void TopLabel()
     {
@@ -132,7 +131,7 @@ public class LevelEditorWindow : EditorWindow
         GUILayout.Space(3);
         objRotation = EditorGUILayout.Vector3Field("Active Object Rotation", objRotation, GUILayout.MaxWidth(300));
         GUILayout.Space(5);
-        objOffset = EditorGUILayout.Vector3Field("Active Object Rotation", objOffset, GUILayout.MaxWidth(300));
+        objOffset = EditorGUILayout.Vector3Field("Active Object Offset", objOffset, GUILayout.MaxWidth(300));
         GUILayout.Space(3);
 
         if (handle != null)
