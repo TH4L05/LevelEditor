@@ -13,10 +13,9 @@ public class LevelEditorHandle : Editor
     private Vector3 objectScale = Vector3.zero;
     private Color drawColor = Color.white;
     private GameObject activeObject;
-    //private GameObject tempObjectInstance;
     private Material previewMaterial;
     private Vector3 additionalRotation;
-    private float handleHeightOffset;
+    private Vector3 handleOffset;
 
     public bool IsMouseInValidArea => isMouseInValidArea;
     public Vector3 CurrentHandlePosition => currentHandlePosition;
@@ -77,7 +76,7 @@ public class LevelEditorHandle : Editor
             currentHandlePosition.y = Mathf.Floor(hit.point.y - hit.normal.y * 0.001f + offset.y);
             currentHandlePosition.z = Mathf.Floor(hit.point.z - hit.normal.z * 0.001f + offset.z);
 
-            currentHandlePosition += new Vector3(0f, 0f + handleHeightOffset, 0f);
+            currentHandlePosition += handleOffset;
         }
     }
 
@@ -158,9 +157,9 @@ public class LevelEditorHandle : Editor
         additionalRotation = rotation;
     }
 
-    public void SetHandleHeight(float height)
+    public void SetHandleHeight(Vector3 offset)
     {
-        handleHeightOffset = height;
+        handleOffset = offset;
     }
 
     #endregion

@@ -10,6 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3f075f299d3b99b40a4414ebc6459573, type: 3}
-  m_Name: EditorDefault
+  m_Name: EditorSettings
   m_EditorClassIdentifier: 
+  displayName: LevelEditor
+  displayNameColor: {r: 1, g: 1, b: 1, a: 1}
   previewMaterial: {fileID: 2100000, guid: 9088660fb1d4619468727dc424c641db, type: 2}

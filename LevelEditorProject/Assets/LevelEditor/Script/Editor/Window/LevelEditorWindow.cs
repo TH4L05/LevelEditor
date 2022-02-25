@@ -26,7 +26,7 @@ public class LevelEditorWindow : EditorWindow
     public Material previewMaterial;    
     private Vector3 scale = Vector3.zero;
     private Vector3 objRotation;
-    private float height = 0.5f;
+    private Vector3 objOffset = new Vector3(0f, 0.5f, 0f);
     private GameObject activeObj;
 
     //selection grid
@@ -107,13 +107,13 @@ public class LevelEditorWindow : EditorWindow
     private void TopBar()
     {
         EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("PartsListEditor"))
+        if (GUILayout.Button("PartsListEditor", GUILayout.Height(35), GUILayout.Width(250)))
         {
             ToolbarOption1();           
             PartsListEditorWindow.OpenWindow();
         }
 
-        if (GUILayout.Button("Settings"))
+        if (GUILayout.Button("Settings", GUILayout.Height(35), GUILayout.Width(250)))
         {
             ToolbarOption1();
             EditorSettingsWindow.OpenWindow();
@@ -129,23 +129,15 @@ public class LevelEditorWindow : EditorWindow
 
     private void OptionsArea()
     {
+        GUILayout.Space(3);
+        objRotation = EditorGUILayout.Vector3Field("Active Object Rotation", objRotation, GUILayout.MaxWidth(300));
         GUILayout.Space(5);
-        previewMaterial = (Material)EditorGUILayout.ObjectField("PreView Material", previewMaterial, typeof(Material), true);
-        GUILayout.Space(10);
-        EditorGUILayout.Separator();
-
-        objRotation = EditorGUILayout.Vector3Field("Active Object Rotation", objRotation);
-        GUILayout.Space(5);
-
-        EditorGUILayout.BeginHorizontal();
-        GUILayout.Label("Set height offset", GUILayout.Width(125));
-        height = EditorGUILayout.Slider(height, -50f, 50f, GUILayout.MaxWidth(200), GUILayout.Height(20));
-        EditorGUILayout.EndHorizontal();
-        GUILayout.Space(10);
+        objOffset = EditorGUILayout.Vector3Field("Active Object Rotation", objOffset, GUILayout.MaxWidth(300));
+        GUILayout.Space(3);
 
         if (handle != null)
         {
-            handle.SetHandleHeight(height);
+            handle.SetHandleHeight(objOffset);
             handle.SetHandleRotation(objRotation);
         } 
     }
@@ -356,7 +348,7 @@ public class LevelEditorWindow : EditorWindow
 
     private void LoadData()
     {
-        editorData = AssetDatabase.LoadAssetAtPath<EditorData>("Assets/LevelEditor/DataEditor/EditorDefault.asset");
+        editorData = AssetDatabase.LoadAssetAtPath<EditorData>("Assets/LevelEditor/DataEditor/EditorSettings.asset");
         assetEditorData = AssetDatabase.LoadAssetAtPath<AssetEditorData>("Assets/LevelEditor/DataEditor/AssetEditorData.asset");                  
     }
 

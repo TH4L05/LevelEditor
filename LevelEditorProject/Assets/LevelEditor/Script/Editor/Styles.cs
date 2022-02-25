@@ -8,6 +8,8 @@ public struct LevelEditorStyles
     #region Fields
 
     public static GUIStyle topLabel = new GUIStyle();
+    public static GUIStyle topBarButton = new GUIStyle();
+
     public static GUIStyle textstyle2 = new GUIStyle();
     public static GUIStyle toolbarStyle = new GUIStyle();
     public static GUIStyle boxStyle = new GUIStyle();
@@ -21,12 +23,20 @@ public struct LevelEditorStyles
 
     public static void SetStyles()
     {
-        data = AssetDatabase.LoadAssetAtPath<EditorData>("Assets/LevelEditor/DataEditor/EditorDefault.asset");
+        data = AssetDatabase.LoadAssetAtPath<EditorData>("Assets/LevelEditor/DataEditor/EditorSettings.asset");
 
         topLabel.alignment = TextAnchor.MiddleCenter;
         topLabel.normal.textColor = data.displayNameColor;
         topLabel.fontStyle = FontStyle.Bold;
         topLabel.fontSize = 25;
+
+        topBarButton.alignment = TextAnchor.MiddleCenter;
+        topBarButton.normal.textColor = Color.white;
+        topBarButton.normal.background = Texture2D.grayTexture;       
+        topBarButton.hover.textColor = Color.cyan;
+        topBarButton.hover.background = Texture2D.whiteTexture;
+        topBarButton.active.textColor = Color.white;
+        topBarButton.active.background = Texture2D.grayTexture;
 
         textstyle2.alignment = TextAnchor.MiddleCenter;
         textstyle2.normal.textColor = Color.white;
