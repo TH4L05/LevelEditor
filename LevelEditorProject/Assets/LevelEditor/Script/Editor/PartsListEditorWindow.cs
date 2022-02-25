@@ -1,6 +1,4 @@
 /// <author> Thomas Krahl </author>
-/// <version>1.01</version>
-/// <date>25/02/2022</date>
 
 using UnityEditor;
 using UnityEngine;
@@ -66,11 +64,15 @@ public class PartsListEditorWindow : EditorWindow
             assetListNames[i] = assetEditorData.createdPartsLists[i].assetList.name;
         }
 
+        ReloadLevelEditorWindow();
+    }
+
+    public void ReloadLevelEditorWindow()
+    {
         if (LevelEditorWindow.EditorIsActive)
         {
             LevelEditorWindow.Reload();
         }
-
     }
 
     #endregion
@@ -160,7 +162,7 @@ public class PartsListEditorWindow : EditorWindow
 
     #endregion
 
-    #region Create and delete List
+    #region Create / Delete List
 
     /// <summary>
     /// Creates a new PartsList asset and saves it on DataPath

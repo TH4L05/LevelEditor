@@ -1,11 +1,9 @@
 /// <author> Thomas Krahl </author>
-/// <version>1.00</version>
-/// <date>24/02/2022</date>
 
 using UnityEditor;
 using UnityEngine;
 
-public class LevelEditorObjectPlacement : MonoBehaviour
+public class LevelEditorObjectPlacement
 {
 
     static Transform levelParent;
@@ -44,14 +42,14 @@ public class LevelEditorObjectPlacement : MonoBehaviour
         }
     }
 
-    public void AddBlock(Vector3 position, GameObject template, float rotationY)
+    public void AddBlock(Vector3 position, GameObject template, Vector3 rotation)
     {
         if (template == null) return;
         //Debug.Log("DrawObject");
 
         Vector3 finalPosition = new Vector3(position.x, position.y, position.z);
         Vector3 objRotation = template.transform.rotation.eulerAngles;
-        objRotation += new Vector3(0, rotationY, 0);
+        objRotation += rotation;
 
         GameObject newObject = (GameObject)PrefabUtility.InstantiatePrefab(template);
         //GameObject newObject = Instantiate(template, finalPosition, Quaternion.Euler(objRotation));

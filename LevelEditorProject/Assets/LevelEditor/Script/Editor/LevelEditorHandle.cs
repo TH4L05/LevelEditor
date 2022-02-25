@@ -1,6 +1,4 @@
 /// <author> Thomas Krahl </author>
-/// <version>1.00</version>
-/// <date>24/02/2022</date>
 
 using UnityEditor;
 using UnityEngine;
@@ -17,26 +15,25 @@ public class LevelEditorHandle : Editor
     private GameObject activeObject;
     //private GameObject tempObjectInstance;
     private Material previewMaterial;
-    private float additionalRotation;
-    private int handleHeight;
+    private Vector3 additionalRotation;
+    private float handleHeightOffset;
 
     public bool IsMouseInValidArea => isMouseInValidArea;
     public Vector3 CurrentHandlePosition => currentHandlePosition;
 
+    bool selectBlockNextToMousePosition = true;
+
     #endregion
 
-    #region InitAndDestroy
+    #region Initialize And Destroy
 
-
-    public void IntializeHandle()
+    public void Initialize()
     {
-        //The OnSceneGUI delegate is called every time the SceneView is redrawn and allows you
-        //to draw GUI elements into the SceneView to create in editor functionality
         SceneView.duringSceneGui -= OnSceneGUI;
         SceneView.duringSceneGui += OnSceneGUI;
     }
 
-    public void DestroyHandle()
+    public void Destroy()
     {
         SceneView.duringSceneGui -= OnSceneGUI;
     }
@@ -53,10 +50,6 @@ public class LevelEditorHandle : Editor
         UpdateIsMouseInValidArea(sceneView.position);
         UpdateRepaint();
         DrawCubeDrawPreview();
-
-        //Debug.Log(currentHandlePosition);
-        //Debug.Log(oldHandlePosition);
-        //Debug.Log(isMouseInValidArea);
     }
 
     void UpdateHandlePosition()
@@ -66,9 +59,7 @@ public class LevelEditorHandle : Editor
             return;
         }
 
-        //Debug.Log("HandlePosition");
         Vector2 mousePosition = new Vector2(Event.current.mousePosition.x, Event.current.mousePosition.y);
-        //Debug.Log(mousePosition);
 
         Ray ray = HandleUtility.GUIPointToWorldRay(mousePosition);
         RaycastHit hit;
@@ -77,7 +68,7 @@ public class LevelEditorHandle : Editor
         {
             Vector3 offset = Vector3.zero;
 
-            if (EditorPrefs.GetBool("SelectBlockNextToMousePosition", true) == true)
+            if (selectBlockNextToMousePosition)
             {
                 offset = hit.normal;
             }
@@ -86,7 +77,7 @@ public class LevelEditorHandle : Editor
             currentHandlePosition.y = Mathf.Floor(hit.point.y - hit.normal.y * 0.001f + offset.y);
             currentHandlePosition.z = Mathf.Floor(hit.point.z - hit.normal.z * 0.001f + offset.z);
 
-            currentHandlePosition += new Vector3(0f, 0f + handleHeight, 0f);
+            currentHandlePosition += new Vector3(0f, 0f + handleHeightOffset, 0f);
         }
     }
 
@@ -128,19 +119,16 @@ public class LevelEditorHandle : Editor
             scale = new Vector3(1f, 1f, 1f);
         }
 
-        Handles.DrawWireCube(center, scale);
+        //Handles.DrawWireCube(center, scale);
 
         if (activeObject == null) return;
-
 
         if (LevelEditorWindow.toolbarTabIndex == 1)
         {
             if (activeObject == null) return;
             var mesh = activeObject.GetComponent<MeshFilter>().sharedMesh;
-
             var rotation = activeObject.transform.rotation.eulerAngles;
-            rotation.y += additionalRotation;
-
+            rotation += additionalRotation;
             Graphics.DrawMesh(mesh, new Vector3(center.x, center.y, center.z ), Quaternion.Euler(rotation), previewMaterial, 0);
         }
     }
@@ -151,7 +139,6 @@ public class LevelEditorHandle : Editor
 
     public void SetObjectScale(Vector3 scale)
     {
-        //Debug.Log(scale);
         objectScale = scale;
     }
 
@@ -166,14 +153,14 @@ public class LevelEditorHandle : Editor
         previewMaterial = material;
     }
 
-    public void SetHandleRotation(float rotation)
+    public void SetHandleRotation(Vector3 rotation)
     {
         additionalRotation = rotation;
     }
 
-    public void SetHandleHeight(int height)
+    public void SetHandleHeight(float height)
     {
-        handleHeight = height;
+        handleHeightOffset = height;
     }
 
     #endregion

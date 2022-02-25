@@ -1,6 +1,4 @@
 /// <author> Thomas Krahl </author>
-/// <version>1.00</version>
-/// <date>24/02/2022</date>
 
 using System.Collections.Generic;
 using UnityEngine;

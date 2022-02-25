@@ -1,7 +1,4 @@
 /// <author> Thomas Krahl </author>
-/// <version>1.0</version>
-/// <date>24/02/2022</date>
-
 
 using UnityEngine;
 using UnityEditor;
@@ -16,8 +13,9 @@ public class LevelEditorWindow : EditorWindow
     private static EditorData editorData;
     private static AssetEditorData assetEditorData;
     public static int assetDataListCount;
+
     private LevelEditorHandle handle;
-    private LevelEditorObjectPlacement objecthandle;
+    private LevelEditorObjectPlacement objectPlacement;
 
     //Toolbar
     public static int toolbarTabIndex = 0;
@@ -27,8 +25,8 @@ public class LevelEditorWindow : EditorWindow
     //Object
     public Material previewMaterial;    
     private Vector3 scale = Vector3.zero;
-    private float objRotation;
-    private int height;
+    private Vector3 objRotation;
+    private float height = 0.5f;
     private GameObject activeObj;
 
     //selection grid
@@ -41,10 +39,9 @@ public class LevelEditorWindow : EditorWindow
     private string[] foldOutTexts;
     private bool[] foldOuts;
 
-    //PartSelectionGrid and GridOptions 
+    //gridOptions 
     private float gridSelectionHeight = 125.0f;
     private float gridSelectionWidth = 200.0f;
-    private Vector2 scrollPos = Vector2.zero;
 
     #endregion
 
@@ -55,6 +52,11 @@ public class LevelEditorWindow : EditorWindow
         TopLabel();
 
         EditorGUILayout.Separator();
+
+        TopBar();
+
+        EditorGUILayout.Separator();
+        MyGUI.DrawUILine(Color.grey);
 
         Toolbar();     
 
@@ -85,9 +87,9 @@ public class LevelEditorWindow : EditorWindow
     {
         SceneView.duringSceneGui -= OnSceneGUI;
         EditorIsActive = false;
-        handle.DestroyHandle();
+        handle.Destroy();
         handle = null;
-        objecthandle = null;
+        objectPlacement = null;
         ToolbarOption1();
         SceneView.RepaintAll();
     }
@@ -102,6 +104,23 @@ public class LevelEditorWindow : EditorWindow
         GUILayout.Space(5);
     }
 
+    private void TopBar()
+    {
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("PartsListEditor"))
+        {
+            ToolbarOption1();           
+            PartsListEditorWindow.OpenWindow();
+        }
+
+        if (GUILayout.Button("Settings"))
+        {
+            ToolbarOption1();
+            EditorSettingsWindow.OpenWindow();
+        }
+        EditorGUILayout.EndHorizontal();
+    }
+
     private void Toolbar()
     {
         toolbarTabIndex = GUILayout.Toolbar(toolbarTabIndex, texts, GUILayout.Height(35));
@@ -114,32 +133,21 @@ public class LevelEditorWindow : EditorWindow
         previewMaterial = (Material)EditorGUILayout.ObjectField("PreView Material", previewMaterial, typeof(Material), true);
         GUILayout.Space(10);
         EditorGUILayout.Separator();
-        EditorGUILayout.BeginHorizontal();
 
-        GUILayout.Label("Rotate active Object", GUILayout.Width(125));
-        GUILayout.Space(2);
-        if (GUILayout.Button("Rotate Y +90"))
-        {
-            objRotation += 90f;
-            handle.SetHandleRotation(objRotation);
-            Debug.Log(objRotation);
-        }
-        if (GUILayout.Button("Rotate Y -90"))
-        {
-            objRotation -= 90f;
-            handle.SetHandleRotation(objRotation);
-            Debug.Log(objRotation);
-        }
-        EditorGUILayout.EndHorizontal();
+        objRotation = EditorGUILayout.Vector3Field("Active Object Rotation", objRotation);
         GUILayout.Space(5);
 
         EditorGUILayout.BeginHorizontal();
         GUILayout.Label("Set height offset", GUILayout.Width(125));
-        height = EditorGUILayout.IntSlider(height, -50, 50, GUILayout.MaxWidth(200), GUILayout.Height(20));
+        height = EditorGUILayout.Slider(height, -50f, 50f, GUILayout.MaxWidth(200), GUILayout.Height(20));
         EditorGUILayout.EndHorizontal();
-
-        handle.SetHandleHeight(height);
         GUILayout.Space(10);
+
+        if (handle != null)
+        {
+            handle.SetHandleHeight(height);
+            handle.SetHandleRotation(objRotation);
+        } 
     }
 
     private void FoldOuts()
@@ -331,11 +339,12 @@ public class LevelEditorWindow : EditorWindow
 
     private void Setup()
     {
-        toolbarTabIndex = 0;       
-        handle = new LevelEditorHandle();
-        handle.IntializeHandle();
-        objecthandle = new LevelEditorObjectPlacement();
+        handle = ScriptableObject.CreateInstance<LevelEditorHandle>();
+        objectPlacement = new LevelEditorObjectPlacement();
 
+        toolbarTabIndex = 0;        
+        handle.Initialize();
+        
         LoadLevelPartsLists();       
         LevelEditorStyles.SetStyles();
 
@@ -431,7 +440,7 @@ public class LevelEditorWindow : EditorWindow
 
                 if (toolbarTabIndex == 1)
                 {
-                    objecthandle.AddBlock(handle.CurrentHandlePosition, activeObj, objRotation);
+                    objectPlacement.AddBlock(handle.CurrentHandlePosition, activeObj, objRotation);
                 }
             }
         }
@@ -446,9 +455,7 @@ public class LevelEditorWindow : EditorWindow
 
     void SetActiveObject(int listIndex, int partIndex)
     {
-
         activeObj = levelAssetLists[listIndex].parts[partIndex].Template;
-        //Debug.Log(activeObj.name);
         handle.SetActiveObject(activeObj, previewMaterial);
     }
 

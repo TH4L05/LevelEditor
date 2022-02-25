@@ -1,6 +1,4 @@
 /// <author> Thomas Krahl </author>
-/// <version>1.00</version>
-/// <date>25/02/2022</date>
 
 using UnityEngine;
 using UnityEditor;
@@ -50,7 +48,11 @@ public class PartListInspector : Editor
         }*/
 
         EditorGUILayout.EndScrollView();
-        serializedObject.ApplyModifiedProperties();
+        bool changes = serializedObject.ApplyModifiedProperties();
+        if (LevelEditorWindow.EditorIsActive && changes)
+        {
+            LevelEditorWindow.Reload();
+        }
     }
 
     #endregion
@@ -75,6 +77,8 @@ public class PartListInspector : Editor
 
     #endregion
 
+    #region Test
+
     void AddPart()
     {
         parts.arraySize++;
@@ -85,5 +89,5 @@ public class PartListInspector : Editor
         parts.arraySize--;
     }
 
-    
+    #endregion
 }
