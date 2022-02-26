@@ -7,9 +7,8 @@ public class EditorSettingsWindow : EditorWindow
 {
     private static EditorSettingsWindow window;
     private EditorData editorData;
-    Editor editor;
+    private Editor editor;
 
-    [MenuItem("Tools/LevelEditor/EditorSettingsWindow")]
     public static void OpenWindow()
     {
         window = GetWindow<EditorSettingsWindow>("EditorSettings");
@@ -17,28 +16,34 @@ public class EditorSettingsWindow : EditorWindow
 
     private void OnGUI()
     {
-        //editor.DrawDefaultInspector();
         editor.OnInspectorGUI();
         EditorUtility.SetDirty(editorData);
     }
 
-    private void OnEnable()
+    private void OnDestroy()
     {
-        Load();
+        if(editor != null) DestroyImmediate(editor);
     }
 
-    private void Load()
+    private void OnEnable()
     {
-        editorData = AssetDatabase.LoadAssetAtPath<EditorData>("Assets/LevelEditor/DataEditor/EditorSettings.asset");
+        Setup();
+    }
 
-        if (editorData != null)
+    private void Setup()
+    {
+        try
         {
-            editor = Editor.CreateEditor(editorData);           
+            editorData = AssetDatabase.LoadAssetAtPath<EditorData>("Assets/LevelEditor/DataEditor/EditorSettings.asset");
         }
-        else
+        catch (System.Exception)
         {
-            Debug.Log("AAAAAA");
+            Debug.LogError("Could not Load EditorData");
+            window.Close();
+            throw;
         }
+
+        editor = Editor.CreateEditor(editorData);
     }
 
 }

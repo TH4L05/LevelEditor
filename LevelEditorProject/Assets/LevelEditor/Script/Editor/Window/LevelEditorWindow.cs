@@ -317,15 +317,19 @@ public class LevelEditorWindow : EditorWindow
     [MenuItem("Tools/LevelEditor/LevelEditorWindow")]
     public static void OpenWindow()
     {
-
         window = GetWindow<LevelEditorWindow>("Level Editor");
         window.minSize = new Vector2(250f, 500f);
     }
 
     public static void Reload()
     {
-        window.Close();
+        window?.Close();
         OpenWindow();
+    }
+
+    public static void CloseWindow()
+    {
+        window?.Close();
     }
 
     private void Setup()

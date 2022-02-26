@@ -8,11 +8,15 @@ public class PartsListEditorWindow : EditorWindow
     #region Fields
 
     private static PartsListEditorWindow window;
+    private Editor editor;
     private static AssetEditorData assetEditorData;
-    private string assetListName;
-    private string[] assetListNames;
+    private string partListName;
+    private string[] partListNames;
     private int index;
     private Vector2 scrollPosition = Vector2.zero;
+    private Vector2 scrollPositionLeft = Vector2.zero;
+    private Vector2 scrollPositionRight = Vector2.zero;
+    private bool levelEditorWasEnabled;
 
     public static int AssetListCount
     {
@@ -36,43 +40,13 @@ public class PartsListEditorWindow : EditorWindow
     }
 
     private void OnEnable()
-    {        
-        try
-        {
-            assetEditorData = AssetDatabase.LoadAssetAtPath<AssetEditorData>("Assets/LevelEditor/DataEditor/AssetEditorData.asset");
-            LoadLists();
-            //PartsListStyles.SetStyles();
-        }
-        catch (System.Exception)
-        {
-            Debug.LogError("COULD NOT LOAD ASSETDATALIST");
-            window.Close();
-            throw;          
-        }      
+    {
+        Setup();
     }
 
-    private void LoadLists()
+    private void OnDestroy()
     {
-        if (AssetListCount == 0)
-        {
-            return;
-        }
-
-        assetListNames = new string[AssetListCount];
-        for (int i = 0; i < assetEditorData.createdPartsLists.Count; i++)
-        {
-            assetListNames[i] = assetEditorData.createdPartsLists[i].assetList.name;
-        }
-
-        ReloadLevelEditorWindow();
-    }
-
-    public void ReloadLevelEditorWindow()
-    {
-        if (LevelEditorWindow.EditorIsActive)
-        {
-            LevelEditorWindow.Reload();
-        }
+        Destroy();
     }
 
     #endregion
@@ -80,7 +54,7 @@ public class PartsListEditorWindow : EditorWindow
     #region Window
 
     /// <summary>
-    /// Open the EditorWindow
+    /// Open the EditorWindow and set the min window size
     /// </summary>
     [MenuItem("Tools/LevelEditor/PartsListsEditorWindow")]
     public static void OpenWindow()
@@ -94,7 +68,9 @@ public class PartsListEditorWindow : EditorWindow
     /// </summary>
     private void LeftArea()
     {
-        GUILayout.BeginArea(new Rect(15, 15, 205, 1000));
+        
+        scrollPositionLeft = EditorGUILayout.BeginScrollView(scrollPositionLeft, false, false);
+        GUILayout.BeginArea(new Rect(15, 15, 225, window.position.height - 150));
         if (AssetListCount == 0)
         {
             GUILayout.Label("No PartList created");
@@ -108,9 +84,11 @@ public class PartsListEditorWindow : EditorWindow
             for (int i = 0; i < AssetListCount; i++)
             {
                 GUILayout.BeginHorizontal();
-                if (GUILayout.Button(assetListNames[i], GUILayout.Width(180f), GUILayout.Height(25f)))
+                if (GUILayout.Button(partListNames[i], GUILayout.Width(175f), GUILayout.Height(25f)))
                 {
+                    if(editor != null) DestroyImmediate(editor);                   
                     index = i;
+                    CreateEditor();
                 }
                 if (GUILayout.Button("X", GUILayout.Width(20f), GUILayout.Height(25f)))
                 {
@@ -123,9 +101,13 @@ public class PartsListEditorWindow : EditorWindow
 
             EditorGUILayout.EndScrollView();
         }
-        EditorGUILayout.Separator();
-        LeftAreaBottom();
+              
         GUILayout.EndArea();
+        EditorGUILayout.EndScrollView();
+        EditorGUILayout.Separator();
+
+        LeftAreaBottom();
+        
     }
 
     /// <summary>
@@ -143,21 +125,87 @@ public class PartsListEditorWindow : EditorWindow
     /// </summary>
     private void RightArea()
     {
-        GUILayout.BeginArea(new Rect(255, 15, 600, 1000));
+        GUILayout.BeginArea(new Rect(255f, 15f, window.position.width - 275f, window.position.height -15f));
 
+        scrollPositionRight = EditorGUILayout.BeginScrollView(scrollPositionRight);
         if (AssetListCount != 0)
         {
-            var selection = assetEditorData.createdPartsLists[index].assetList;
-            if (selection != null)
-            {
-                var editor = Editor.CreateEditor(selection);
-                //editor.DrawDefaultInspector();
-                editor.OnInspectorGUI();
-                EditorUtility.SetDirty(selection);
-            }
+           if(editor != null) editor.OnInspectorGUI();
         }
 
+        EditorGUILayout.EndScrollView();
         GUILayout.EndArea();
+    }
+
+
+    /// <summary>
+    /// Creates an Editor if ListButton is clicked
+    /// </summary>
+    private void CreateEditor()
+    {
+        var selection = assetEditorData.createdPartsLists[index].assetList;
+        if (selection != null)
+        {
+            editor = Editor.CreateEditor(selection);
+            EditorUtility.SetDirty(selection);
+        }
+    }
+
+    #endregion
+
+    #region Setup and Destroy
+
+    public void ReloadLevelEditorWindow()
+    {
+        if (LevelEditorWindow.EditorIsActive)
+        {
+            LevelEditorWindow.Reload();
+        }
+    }
+
+    private void LoadLists()
+    {
+        if (AssetListCount == 0) return;
+       
+        partListNames = new string[AssetListCount];
+        for (int i = 0; i < assetEditorData.createdPartsLists.Count; i++)
+        {
+            partListNames[i] = assetEditorData.createdPartsLists[i].assetList.name;
+        }
+    }
+
+
+    private void Setup()
+    {
+        index = 0;
+
+        if (LevelEditorWindow.EditorIsActive)
+        {
+            levelEditorWasEnabled = true;
+            LevelEditorWindow.CloseWindow();
+        }
+
+        try
+        {
+            assetEditorData = AssetDatabase.LoadAssetAtPath<AssetEditorData>("Assets/LevelEditor/DataEditor/AssetEditorData.asset");
+            LoadLists();
+        }
+        catch (System.Exception)
+        {
+            Debug.LogError("COULD NOT LOAD ASSETDATALIST");
+            window.Close();
+            throw;
+        }
+    }
+
+    private void Destroy()
+    {
+        if (levelEditorWasEnabled)
+        {
+            LevelEditorWindow.OpenWindow();
+        }
+
+        if (editor != null) DestroyImmediate(editor);
     }
 
     #endregion
@@ -170,19 +218,24 @@ public class PartsListEditorWindow : EditorWindow
     private void CreateNewPartsList()
     {
         GUILayout.Label("List Name:");
-        assetListName = GUILayout.TextField(assetListName);
+        partListName = GUILayout.TextField(partListName);
         if (GUILayout.Button("Create New List"))
         {
-            if (assetListName == string.Empty)
+            if (partListName == string.Empty)
             {
                 Debug.LogWarning("Empty names are not allowed");
                 return;
             }
+            else if(partListName.Length > 12)
+            {
+                Debug.LogWarning("Names bigger then 12 Character are not allowed");
+                return;
+            }
 
-            var data = CreateAsset(assetListName);
+            var data = CreateAsset(partListName);
             assetEditorData.AddPartList(data);
             LoadLists();
-            assetListName = string.Empty;
+            partListName = string.Empty;
         }
     }
 
@@ -201,9 +254,9 @@ public class PartsListEditorWindow : EditorWindow
 
     private void DeleteList()
     {
-        index = 0;
         var assetData = assetEditorData.createdPartsLists[index];
         assetEditorData.RemovePartList(assetData);
+        index = 0;
         LoadLists();
         DeleteAsset(assetData);       
     }
