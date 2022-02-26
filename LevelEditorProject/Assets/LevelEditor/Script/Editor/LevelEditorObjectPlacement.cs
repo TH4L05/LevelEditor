@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class LevelEditorObjectPlacement
 {
-
     static Transform levelParent;
     public static Transform LevelParent
     {
@@ -45,22 +44,22 @@ public class LevelEditorObjectPlacement
     public void AddBlock(Vector3 position, GameObject template, Vector3 rotation)
     {
         if (template == null) return;
-        //Debug.Log("DrawObject");
 
-        Vector3 finalPosition = new Vector3(position.x, position.y, position.z);
+        Vector3 spawnPosition = new Vector3(position.x, position.y, position.z);
         Vector3 objRotation = template.transform.rotation.eulerAngles;
         objRotation += rotation;
 
         GameObject newObject = (GameObject)PrefabUtility.InstantiatePrefab(template);
-        //GameObject newObject = Instantiate(template, finalPosition, Quaternion.Euler(objRotation));
         newObject.transform.parent = LevelParent;
-        newObject.transform.position = finalPosition;
+        newObject.transform.position = spawnPosition;
         newObject.transform.rotation = Quaternion.Euler(objRotation);
         newObject.transform.name = template.name;
 
-        //Make sure a proper Undo/Redo step is created. This is a special type for newly created objects
+        //create Undo/Redo step
         Undo.RegisterCreatedObjectUndo(newObject, "Add " + template.name);
 
         UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
     }
 }
+
+

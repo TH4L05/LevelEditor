@@ -9,24 +9,22 @@ public class LevelEditorWindow : EditorWindow
     #region Fields
 
     private static LevelEditorWindow window;
+    private LevelEditorHandle handle;
 
     private static EditorData editorData;
     private static AssetEditorData assetEditorData;
-    public static int assetDataListCount;
-
-    private LevelEditorHandle handle;
-    private LevelEditorObjectPlacement objectPlacement;
+    private static int assetDataListCount;
 
     //Toolbar
-    public static int toolbarTabIndex = 0;
     private string[] texts = { "Edit", "Draw", };
     public static bool EditorIsActive = false;
+    private int toolbarIndex;
 
     //Object
     public Material previewMaterial;    
     private Vector3 scale = Vector3.zero;
     private Vector3 objRotation;
-    private Vector3 objOffset = new Vector3(0f, 0.5f, 0f);
+    private Vector3 objOffset = new Vector3(0f, 1.5f, 0f);
     private GameObject activeObj;
 
     //selection grid
@@ -42,6 +40,9 @@ public class LevelEditorWindow : EditorWindow
     //gridOptions 
     private float gridSelectionHeight = 125.0f;
     private float gridSelectionWidth = 200.0f;
+    private Vector2 activePos = Vector2.zero;
+    private int activePartIndex;
+    private int activeListIndex;
 
     #endregion
 
@@ -50,7 +51,7 @@ public class LevelEditorWindow : EditorWindow
     private void OnEnable()
     {
         EditorIsActive = true;
-        LoadData();
+        
         Setup();
     }
 
@@ -78,19 +79,13 @@ public class LevelEditorWindow : EditorWindow
         EditorGUILayout.Space(3f);
         EditorGUILayout.Separator();
 
-        FoldOuts();
-       
-        CheckToolBarIndex();
+        FoldoutArea();
     }
 
     private void OnDestroy()
     {
-        SceneView.duringSceneGui -= OnSceneGUI;
-        EditorIsActive = false;
-        handle.Destroy();        
-        ScriptableObject.DestroyImmediate(handle);
-        ToolbarOption1();
-        SceneView.RepaintAll();
+        EditorIsActive = false;     
+        ScriptableObject.DestroyImmediate(handle);       
     }
 
     #endregion
@@ -108,13 +103,13 @@ public class LevelEditorWindow : EditorWindow
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("PartsListEditor", GUILayout.Height(35), GUILayout.Width(250)))
         {
-            ToolbarOption1();           
+            handle.SetToolBarIndex(0);
             PartsListEditorWindow.OpenWindow();
         }
 
         if (GUILayout.Button("Settings", GUILayout.Height(35), GUILayout.Width(250)))
         {
-            ToolbarOption1();
+            handle.SetToolBarIndex(0);
             EditorSettingsWindow.OpenWindow();
         }
         EditorGUILayout.EndHorizontal();
@@ -122,7 +117,8 @@ public class LevelEditorWindow : EditorWindow
 
     private void Toolbar()
     {
-        toolbarTabIndex = GUILayout.Toolbar(toolbarTabIndex, texts, GUILayout.Height(35));
+        toolbarIndex = GUILayout.Toolbar(toolbarIndex, texts, GUILayout.Height(35));
+        handle.SetToolBarIndex(toolbarIndex);
         GUILayout.Space(3);
     }
 
@@ -141,7 +137,7 @@ public class LevelEditorWindow : EditorWindow
         } 
     }
 
-    private void FoldOuts()
+    private void FoldoutArea()
     {
         if (assetDataListCount != 0)
         {
@@ -206,13 +202,21 @@ public class LevelEditorWindow : EditorWindow
                 GUILayout.BeginHorizontal();
                 horizontalStart = true;
             }
-           
-            GUILayout.BeginArea(new Rect(xPos, yPos, gridSelectionWidth, gridSelectionHeight));
+
+            if (partIndex == activePartIndex && listIndex == activeListIndex)
+            {
+                MyGUI.DrawColorRect(new Color(0.27f, 0.37f, 0.48f), new Rect(xPos, yPos, gridSelectionWidth + 1, gridSelectionHeight + 1));
+            }
+
+            GUILayout.BeginArea(new Rect(xPos, yPos, gridSelectionWidth, gridSelectionHeight));          
             GUILayout.BeginVertical();            
             GUILayout.Label(guiContents[listIndex][partIndex].text, LevelEditorStyles.gridLabel);
             if (GUILayout.Button(guiContents[listIndex][partIndex].image, GUILayout.Height(gridSelectionHeight -20)))
             {
-                SetActiveObject(listIndex, partIndex);
+                activePartIndex = partIndex;
+                activeListIndex = listIndex;
+                SetActiveObject(activeListIndex, activePartIndex);
+                
             }
             GUILayout.EndVertical();
             GUILayout.EndArea();
@@ -257,62 +261,7 @@ public class LevelEditorWindow : EditorWindow
 
     #endregion
 
-    #region ToolbarOptions
-
-    void CheckToolBarIndex()
-    {
-        switch (toolbarTabIndex)
-        {
-            case 0:
-            default:
-                ToolbarOption1();
-                break;
-
-            case 1:
-                ToolbarOption2();
-                break;
-
-            case 2:
-                ToolbarOption3();
-                break;
-        }
-    }
-
-    void ToolbarOption1()
-    {
-        Tools.hidden = false;
-        //Debug.Log("OPtion1 Selected");       
-        SceneView.RepaintAll();
-    }
-
-    void ToolbarOption2()
-    {
-        Tools.hidden = true;
-        //Debug.Log("OPtion2 Selected");       
-        SceneView.RepaintAll();
-        handle.SetDrawColor(Color.yellow);
-        handle.SetObjectScale(scale);
-    }
-
-    void ToolbarOption3()
-    {
-        Tools.hidden = true;
-        //Debug.Log("OPtion3 Selected");
-        SceneView.RepaintAll();
-        handle.SetDrawColor(Color.magenta);
-        handle.SetActiveObject(null, null);
-        handle.SetObjectScale(new Vector3(1f, 1f, 1f));
-    }
-
-    #endregion
-
     #region Setup
-
-    public LevelEditorWindow()
-    {
-        SceneView.duringSceneGui -= OnSceneGUI;
-        SceneView.duringSceneGui += OnSceneGUI;
-    }
 
     [MenuItem("Tools/LevelEditor/LevelEditorWindow")]
     public static void OpenWindow()
@@ -336,18 +285,17 @@ public class LevelEditorWindow : EditorWindow
     private void Setup()
     {
         handle = ScriptableObject.CreateInstance<LevelEditorHandle>();
-        objectPlacement = new LevelEditorObjectPlacement();
 
-        toolbarTabIndex = 0;        
-        handle.Initialize();
-        
+        LoadData();
         LoadLevelPartsLists();       
         LevelEditorStyles.SetStyles();
 
         if (editorData == null) return;
         if (editorData.previewMaterial != null) previewMaterial = editorData.previewMaterial;
         if (editorData.LevelEditorGridButtonHeight != 0) gridSelectionHeight = editorData.LevelEditorGridButtonHeight;
-        if(editorData.LevelEditorGridButtonWidth != 0) gridSelectionWidth = editorData.LevelEditorGridButtonWidth;
+        if (editorData.LevelEditorGridButtonWidth != 0) gridSelectionWidth = editorData.LevelEditorGridButtonWidth;
+
+        SetActiveObject(0, 0);
     }
 
     private void LoadData()
@@ -394,7 +342,7 @@ public class LevelEditorWindow : EditorWindow
                 gridContentImages[p] = new GUIContent(text, image, text);
             }
 
-            this.guiContents.Add(gridContentImages);
+            guiContents.Add(gridContentImages);
         }
     }
 
@@ -406,47 +354,6 @@ public class LevelEditorWindow : EditorWindow
     {
         editorData.LevelEditorGridButtonHeight = gridSelectionHeight;
         editorData.LevelEditorGridButtonWidth = gridSelectionWidth;
-    }
-
-    void OnSceneGUI(SceneView sceneView)
-    {
-        LevelEditorObjectPlacement(); 
-    }
-
-    void LevelEditorObjectPlacement()
-    {
-        if (toolbarTabIndex == 0) return;
-
-        //By creating a new ControlID here we can grab the mouse input to the SceneView and prevent Unitys default mouse handling from happening
-        //FocusType.Passive means this control cannot receive keyboard input since we are only interested in mouse input
-        int controlId = GUIUtility.GetControlID(FocusType.Passive);
-      
-        if (Event.current.type == EventType.MouseDown &&
-            Event.current.button == 0 &&
-            Event.current.alt == false &&
-            Event.current.shift == false &&
-            Event.current.control == false)
-        {
-            if (handle.IsMouseInValidArea == true)
-            {
-                /*if (toolbarTabIndex == 2)
-                {
-                    objecthandle.RemoveBlock(handle.CurrentHandlePosition);
-                }*/
-
-                if (toolbarTabIndex == 1)
-                {
-                    objectPlacement.AddBlock(handle.CurrentHandlePosition, activeObj, objRotation);
-                }
-            }
-        }
-
-        if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
-        {
-            toolbarTabIndex = 0;
-        }
-
-        HandleUtility.AddDefaultControl(controlId);
     }
 
     void SetActiveObject(int listIndex, int partIndex)
