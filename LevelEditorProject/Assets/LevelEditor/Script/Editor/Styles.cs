@@ -26,7 +26,7 @@ public struct LevelEditorStyles
         data = AssetDatabase.LoadAssetAtPath<EditorData>("Assets/LevelEditor/DataEditor/EditorSettings.asset");
 
         topLabel.alignment = TextAnchor.MiddleCenter;
-        topLabel.normal.textColor = data.displayNameColor;
+        topLabel.normal.textColor = data.titleNameColor;
         topLabel.fontStyle = FontStyle.Bold;
         topLabel.fontSize = 25;
 

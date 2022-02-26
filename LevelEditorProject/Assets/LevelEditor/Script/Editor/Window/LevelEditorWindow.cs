@@ -47,6 +47,13 @@ public class LevelEditorWindow : EditorWindow
 
     #region UnityFunctions
 
+    private void OnEnable()
+    {
+        EditorIsActive = true;
+        LoadData();
+        Setup();
+    }
+
     private void OnGUI()
     {
         TopLabel();
@@ -76,13 +83,6 @@ public class LevelEditorWindow : EditorWindow
         CheckToolBarIndex();
     }
 
-    private void OnEnable()
-    {
-        EditorIsActive = true;
-        LoadData();
-        Setup();
-    }
-
     private void OnDestroy()
     {
         SceneView.duringSceneGui -= OnSceneGUI;
@@ -99,7 +99,7 @@ public class LevelEditorWindow : EditorWindow
 
     private void TopLabel()
     {
-        GUILayout.Label(editorData.displayName, LevelEditorStyles.topLabel);
+        GUILayout.Label(editorData.titleName, LevelEditorStyles.topLabel);
         GUILayout.Space(5);
     }
 
@@ -317,6 +317,7 @@ public class LevelEditorWindow : EditorWindow
     [MenuItem("Tools/LevelEditor/LevelEditorWindow")]
     public static void OpenWindow()
     {
+        if (PartsListEditorWindow.EditorIsActive) return;
         window = GetWindow<LevelEditorWindow>("Level Editor");
         window.minSize = new Vector2(250f, 500f);
     }

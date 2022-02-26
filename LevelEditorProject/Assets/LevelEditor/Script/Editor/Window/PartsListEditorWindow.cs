@@ -17,8 +17,9 @@ public class PartsListEditorWindow : EditorWindow
     private Vector2 scrollPositionLeft = Vector2.zero;
     private Vector2 scrollPositionRight = Vector2.zero;
     private bool levelEditorWasEnabled;
+    public static bool EditorIsActive = false;
 
-    public static int AssetListCount
+    public static int PartListsCount
     {
         get
         {
@@ -30,6 +31,11 @@ public class PartsListEditorWindow : EditorWindow
 
     #region UnityFunctions
 
+    private void OnEnable()
+    {
+        Setup();
+    }
+
     private void OnGUI()
     {
         GUILayout.BeginHorizontal();
@@ -37,11 +43,6 @@ public class PartsListEditorWindow : EditorWindow
         MyGUI.DrawUILine(Color.gray, new Rect(249, 15, 2,1000));
         RightArea();
         GUILayout.EndHorizontal();
-    }
-
-    private void OnEnable()
-    {
-        Setup();
     }
 
     private void OnDestroy()
@@ -71,7 +72,7 @@ public class PartsListEditorWindow : EditorWindow
         
         scrollPositionLeft = EditorGUILayout.BeginScrollView(scrollPositionLeft, false, false);
         GUILayout.BeginArea(new Rect(15, 15, 225, window.position.height - 150));
-        if (AssetListCount == 0)
+        if (PartListsCount == 0)
         {
             GUILayout.Label("No PartList created");
         }
@@ -81,7 +82,7 @@ public class PartsListEditorWindow : EditorWindow
             EditorGUILayout.Space(5);
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
 
-            for (int i = 0; i < AssetListCount; i++)
+            for (int i = 0; i < PartListsCount; i++)
             {
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button(partListNames[i], GUILayout.Width(175f), GUILayout.Height(25f)))
@@ -126,17 +127,11 @@ public class PartsListEditorWindow : EditorWindow
     private void RightArea()
     {
         GUILayout.BeginArea(new Rect(255f, 15f, window.position.width - 275f, window.position.height -15f));
-
         scrollPositionRight = EditorGUILayout.BeginScrollView(scrollPositionRight);
-        if (AssetListCount != 0)
-        {
-           if(editor != null) editor.OnInspectorGUI();
-        }
-
+        if (PartListsCount != 0 && editor != null) editor.OnInspectorGUI();
         EditorGUILayout.EndScrollView();
         GUILayout.EndArea();
     }
-
 
     /// <summary>
     /// Creates an Editor if ListButton is clicked
@@ -165,9 +160,9 @@ public class PartsListEditorWindow : EditorWindow
 
     private void LoadLists()
     {
-        if (AssetListCount == 0) return;
+        if (PartListsCount == 0) return;
        
-        partListNames = new string[AssetListCount];
+        partListNames = new string[PartListsCount];
         for (int i = 0; i < assetEditorData.createdPartsLists.Count; i++)
         {
             partListNames[i] = assetEditorData.createdPartsLists[i].assetList.name;
@@ -178,11 +173,13 @@ public class PartsListEditorWindow : EditorWindow
     private void Setup()
     {
         index = 0;
+        EditorIsActive = true;
 
         if (LevelEditorWindow.EditorIsActive)
-        {
+        {           
             levelEditorWasEnabled = true;
             LevelEditorWindow.CloseWindow();
+            Debug.Log("LevelEditor gets closed to prevent causing Errors it will be reopen when PartsListEditor gets closed");
         }
 
         try
@@ -196,10 +193,13 @@ public class PartsListEditorWindow : EditorWindow
             window.Close();
             throw;
         }
+
+        if(PartListsCount > 0) CreateEditor();
     }
 
     private void Destroy()
     {
+        EditorIsActive = false;
         if (levelEditorWasEnabled)
         {
             LevelEditorWindow.OpenWindow();
