@@ -2,7 +2,7 @@
 
 using UnityEngine;
 using UnityEditor;
-
+using LevelEditor;
 
 [CustomEditor(typeof(EditorData), true)]
 public class EditorSettingsInspector : Editor

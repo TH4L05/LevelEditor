@@ -2,6 +2,7 @@
 
 using UnityEditor;
 using UnityEngine;
+using LevelEditor;
 
 public class PartsListEditorWindow : EditorWindow
 {

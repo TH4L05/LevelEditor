@@ -4,27 +4,29 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-[System.Serializable]
-public class AssetData
+namespace LevelEditor
 {
-    public PartList assetList;
-    public string path;
-}
-
-public class AssetEditorData : ScriptableObject
-{
-    public List<AssetData> createdPartsLists = new List<AssetData>();
-    public float LastUsedListIndex {get; set;}
-
-
-    public void AddPartList(AssetData partsList)
+    [System.Serializable]
+    public class AssetData
     {
-        createdPartsLists.Add(partsList);
+        public PartList assetList;
+        public string path;
     }
 
-    public void RemovePartList(AssetData partList)
+    public class AssetEditorData : ScriptableObject
     {
-        createdPartsLists.Remove(partList);
-    }
+        public List<AssetData> createdPartsLists = new List<AssetData>();
+        public float LastUsedListIndex { get; set; }
 
+
+        public void AddPartList(AssetData partsList)
+        {
+            createdPartsLists.Add(partsList);
+        }
+
+        public void RemovePartList(AssetData partList)
+        {
+            createdPartsLists.Remove(partList);
+        }
+    }
 }

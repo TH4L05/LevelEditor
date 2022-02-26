@@ -3,63 +3,64 @@
 using UnityEditor;
 using UnityEngine;
 
-public class LevelEditorObjectPlacement
+namespace LevelEditor
 {
-    static Transform levelParent;
-    public static Transform LevelParent
+    public class LevelEditorObjectPlacement
     {
-        get
+        static Transform levelParent;
+        public static Transform LevelParent
         {
-            if (levelParent == null)
+            get
             {
-                GameObject go = GameObject.Find("Environment");
-
-                if (go != null)
+                if (levelParent == null)
                 {
-                    levelParent = go.transform;
+                    GameObject go = GameObject.Find("Environment");
+
+                    if (go != null)
+                    {
+                        levelParent = go.transform;
+                    }
+                }
+
+                return levelParent;
+            }
+        }
+
+        public void RemoveBlock(Vector3 position)
+        {
+            for (int i = 0; i < LevelParent.childCount; ++i)
+            {
+                float distanceToBlock = Vector3.Distance(LevelParent.GetChild(i).transform.position, position);
+                if (distanceToBlock < 0.1f)
+                {
+                    //Use Undo.DestroyObjectImmediate to destroy the object and create a proper Undo/Redo step for it
+                    Undo.DestroyObjectImmediate(LevelParent.GetChild(i).gameObject);
+
+                    //Mark the scene as dirty so it is being saved the next time the user saves
+                    UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
+                    return;
                 }
             }
-
-            return levelParent;
         }
-    }
 
-    public void RemoveBlock(Vector3 position)
-    {
-        for (int i = 0; i < LevelParent.childCount; ++i)
+        public void AddBlock(Vector3 position, GameObject template, Vector3 rotation)
         {
-            float distanceToBlock = Vector3.Distance(LevelParent.GetChild(i).transform.position, position);
-            if (distanceToBlock < 0.1f)
-            {
-                //Use Undo.DestroyObjectImmediate to destroy the object and create a proper Undo/Redo step for it
-                Undo.DestroyObjectImmediate(LevelParent.GetChild(i).gameObject);
+            if (template == null) return;
 
-                //Mark the scene as dirty so it is being saved the next time the user saves
-                UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
-                return;
-            }
+            Vector3 spawnPosition = new Vector3(position.x, position.y, position.z);
+            Vector3 objRotation = template.transform.rotation.eulerAngles;
+            objRotation += rotation;
+
+            GameObject newObject = (GameObject)PrefabUtility.InstantiatePrefab(template);
+            newObject.transform.parent = LevelParent;
+            newObject.transform.position = spawnPosition;
+            newObject.transform.rotation = Quaternion.Euler(objRotation);
+            newObject.transform.name = template.name;
+
+            //create Undo/Redo step
+            Undo.RegisterCreatedObjectUndo(newObject, "Add " + template.name);
+
+            UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
         }
-    }
-
-    public void AddBlock(Vector3 position, GameObject template, Vector3 rotation)
-    {
-        if (template == null) return;
-
-        Vector3 spawnPosition = new Vector3(position.x, position.y, position.z);
-        Vector3 objRotation = template.transform.rotation.eulerAngles;
-        objRotation += rotation;
-
-        GameObject newObject = (GameObject)PrefabUtility.InstantiatePrefab(template);
-        newObject.transform.parent = LevelParent;
-        newObject.transform.position = spawnPosition;
-        newObject.transform.rotation = Quaternion.Euler(objRotation);
-        newObject.transform.name = template.name;
-
-        //create Undo/Redo step
-        Undo.RegisterCreatedObjectUndo(newObject, "Add " + template.name);
-
-        UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
     }
 }
-
-

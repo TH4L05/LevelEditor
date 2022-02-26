@@ -22,7 +22,7 @@ public class EditorSettingsWindow : EditorWindow
 
     private void OnDestroy()
     {
-        if(editor != null) DestroyImmediate(editor);
+        if (editor != null) DestroyImmediate(editor);
     }
 
     private void OnEnable()
@@ -45,5 +45,6 @@ public class EditorSettingsWindow : EditorWindow
 
         editor = Editor.CreateEditor(editorData);
     }
-
 }
+
+

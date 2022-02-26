@@ -3,6 +3,7 @@
 using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
+using LevelEditor;
 
 [CustomEditor(typeof(PartList), true)]
 public class PartListInspector : Editor
