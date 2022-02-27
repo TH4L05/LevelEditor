@@ -147,10 +147,6 @@ namespace LevelEditor
                 {
                     if (levelAssetLists[i].parts.Count == 0) continue;
 
-                    GUIStyle foldoutStyle = new GUIStyle(EditorStyles.foldout);
-                    //style.fixedWidth = 5;
-                    foldoutStyle.fixedHeight = 400;
-
                     foldOuts[i] = EditorGUILayout.Foldout(foldOuts[i], foldOutTexts[i], true);
 
                     if (foldOuts[i])
@@ -302,8 +298,24 @@ namespace LevelEditor
 
         private void LoadData()
         {
-            editorData = AssetDatabase.LoadAssetAtPath<EditorData>("Assets/LevelEditor/DataEditor/EditorSettings.asset");
-            assetEditorData = AssetDatabase.LoadAssetAtPath<AssetEditorData>("Assets/LevelEditor/DataEditor/AssetEditorData.asset");
+            string[] path = AssetDatabase.FindAssets("LevelEditor");
+            string dataPath = AssetDatabase.GUIDToAssetPath(path[0]);
+
+            if (dataPath == string.Empty)
+            {
+                Debug.LogError("Could not find LevelEditor Path");
+                window?.Close();
+            }
+
+            editorData = AssetDatabase.LoadAssetAtPath<EditorData>(dataPath +"/DataEditor/Settings.asset");
+
+             if (editorData == null)
+             {
+                 Debug.LogError("Could not load EditorData");
+                 window?.Close();
+            } 
+            
+            assetEditorData = AssetDatabase.LoadAssetAtPath<AssetEditorData>(dataPath + "/DataEditor/AssetEditorData.asset");
         }
 
         private void LoadLevelPartsLists()
@@ -321,7 +333,7 @@ namespace LevelEditor
 
             for (int i = 0; i < assetDataListCount; i++)
             {
-                levelAssetLists[i] = AssetDatabase.LoadAssetAtPath<PartList>("Assets/LevelEditor/Data/" + assetEditorData.createdPartsLists[i].assetList.name + ".asset");
+                levelAssetLists[i] = AssetDatabase.LoadAssetAtPath<PartList>(assetEditorData.createdPartsLists[i].path);
                 foldOutTexts[i] = levelAssetLists[i].name;
 
                 if (i == 0)
@@ -354,6 +366,8 @@ namespace LevelEditor
 
         private void SaveGridLayoutOptions()
         {
+            
+
             editorData.LevelEditorGridButtonHeight = gridSelectionHeight;
             editorData.LevelEditorGridButtonWidth = gridSelectionWidth;
         }

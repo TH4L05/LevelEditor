@@ -3,48 +3,53 @@
 using UnityEngine;
 using UnityEditor;
 
-public class EditorSettingsWindow : EditorWindow
+namespace LevelEditor
 {
-    private static EditorSettingsWindow window;
-    private EditorData editorData;
-    private Editor editor;
-
-    public static void OpenWindow()
+    public class EditorSettingsWindow : EditorWindow
     {
-        window = GetWindow<EditorSettingsWindow>("EditorSettings");
-    }
+        private static EditorSettingsWindow window;
+        private EditorData editorData;
+        private Editor editor;
 
-    private void OnGUI()
-    {
-        editor.OnInspectorGUI();
-        EditorUtility.SetDirty(editorData);
-    }
-
-    private void OnDestroy()
-    {
-        if (editor != null) DestroyImmediate(editor);
-    }
-
-    private void OnEnable()
-    {
-        Setup();
-    }
-
-    private void Setup()
-    {
-        try
+        public static void OpenWindow()
         {
-            editorData = AssetDatabase.LoadAssetAtPath<EditorData>("Assets/LevelEditor/DataEditor/EditorSettings.asset");
-        }
-        catch (System.Exception)
-        {
-            Debug.LogError("Could not Load EditorData");
-            window.Close();
-            throw;
+            window = GetWindow<EditorSettingsWindow>("EditorSettings");
         }
 
-        editor = Editor.CreateEditor(editorData);
+        private void OnGUI()
+        {
+            editor.OnInspectorGUI();
+            EditorUtility.SetDirty(editorData);
+        }
+
+        private void OnDestroy()
+        {
+            if (editor != null) DestroyImmediate(editor);
+        }
+
+        private void OnEnable()
+        {
+            Setup();
+        }
+
+        private void Setup()
+        {
+            try
+            {
+                editorData = AssetDatabase.LoadAssetAtPath<EditorData>("Assets/LevelEditor/DataEditor/EditorSettings.asset");
+            }
+            catch (System.Exception)
+            {
+                Debug.LogError("Could not Load EditorData");
+                window.Close();
+                throw;
+            }
+
+            editor = Editor.CreateEditor(editorData);
+        }
     }
 }
+
+
 
 

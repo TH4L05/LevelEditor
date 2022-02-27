@@ -41,7 +41,7 @@ public class PartsListEditorWindow : EditorWindow
     {
         GUILayout.BeginHorizontal();
         LeftArea();
-        MyGUI.DrawUILine(Color.gray, new Rect(249, 15, 2,1000));
+        MyGUI.DrawUILine(Color.gray, new Rect(245f, 0f, 2f, window.position.height));
         RightArea();
         GUILayout.EndHorizontal();
     }
@@ -69,10 +69,9 @@ public class PartsListEditorWindow : EditorWindow
     /// Left Side of the Window - draws the ButtonList
     /// </summary>
     private void LeftArea()
-    {
-        
+    {       
         scrollPositionLeft = EditorGUILayout.BeginScrollView(scrollPositionLeft, false, false);
-        GUILayout.BeginArea(new Rect(15, 15, 225, window.position.height - 150));
+        GUILayout.BeginArea(new Rect(15f, 15f, 225f, window.position.height - 150f));
         if (PartListsCount == 0)
         {
             GUILayout.Label("No PartList created");
@@ -80,7 +79,7 @@ public class PartsListEditorWindow : EditorWindow
         else
         {
             GUILayout.Label("PartLists");
-            EditorGUILayout.Space(5);
+            EditorGUILayout.Space(5f);
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
 
             for (int i = 0; i < PartListsCount; i++)
@@ -98,7 +97,7 @@ public class PartsListEditorWindow : EditorWindow
                     DeleteList();
                 }
                 GUILayout.EndHorizontal();
-                EditorGUILayout.Space(2);
+                EditorGUILayout.Space(2f);
             }
 
             EditorGUILayout.EndScrollView();
@@ -108,8 +107,7 @@ public class PartsListEditorWindow : EditorWindow
         EditorGUILayout.EndScrollView();
         EditorGUILayout.Separator();
 
-        LeftAreaBottom();
-        
+        LeftAreaBottom();       
     }
 
     /// <summary>
@@ -117,7 +115,7 @@ public class PartsListEditorWindow : EditorWindow
     /// </summary>
     private void LeftAreaBottom()
     {
-        GUILayout.BeginArea(new Rect(15, window.position.height - 85, 200, 75));
+        GUILayout.BeginArea(new Rect(15f, window.position.height - 85f, 200f, 75f));
         CreateNewPartsList();
         GUILayout.EndArea();
     }
@@ -255,10 +253,13 @@ public class PartsListEditorWindow : EditorWindow
 
     private void DeleteList()
     {
+        if (editor != null) DestroyImmediate(editor);
+
         var assetData = assetEditorData.createdPartsLists[index];
         assetEditorData.RemovePartList(assetData);
         index = 0;
         LoadLists();
+        CreateEditor();
         DeleteAsset(assetData);       
     }
 
