@@ -12,10 +12,10 @@ namespace LevelEditor
 
         private static LevelEditorWindow window;
         private LevelEditorHandle handle;
-
-        private static EditorData editorData;
-        private static AssetEditorData assetEditorData;
-        private static int assetDataListCount;
+        private EditorData editorData;
+        private AssetEditorData assetEditorData;
+        private int assetDataListCount;
+        private string dataPath;
 
         //Toolbar
         private string[] texts = { "Edit", "Draw", };
@@ -23,12 +23,11 @@ namespace LevelEditor
         private int toolbarIndex;
 
         //Object
+        private GameObject activeObj;
         public Material previewMaterial;
-        private Vector3 scale = Vector3.zero;
         private Vector3 objRotation;
         private Vector3 objOffset = new Vector3(0f, 1.5f, 0f);
-        private GameObject activeObj;
-
+        
         //selection grid
         private Vector2 scrollposition = Vector2.zero;
         private Vector2[] scrollpositions;
@@ -42,23 +41,31 @@ namespace LevelEditor
         //gridOptions 
         private float gridSelectionHeight = 125.0f;
         private float gridSelectionWidth = 200.0f;
-        private Vector2 activePos = Vector2.zero;
-        private int activePartIndex;
         private int activeListIndex;
-
+        private int activePartIndex;
+        
         #endregion
 
         #region UnityFunctions
 
         private void OnEnable()
         {
-            EditorIsActive = true;
+            bool setupResult = Setup();
 
-            Setup();
+            if (setupResult)
+            {
+                EditorIsActive = true;
+            }
+            else
+            {
+                Debug.LogError("Setup Failed");
+            }
         }
 
         private void OnGUI()
         {
+            if (!EditorIsActive) return;
+
             TopLabel();
 
             EditorGUILayout.Separator();
@@ -77,7 +84,9 @@ namespace LevelEditor
 
             EditorGUILayout.Separator();
             MyGUI.DrawUILine(Color.grey);
+
             GridOptions();
+
             EditorGUILayout.Space(3f);
             EditorGUILayout.Separator();
 
@@ -87,7 +96,7 @@ namespace LevelEditor
         private void OnDestroy()
         {
             EditorIsActive = false;
-            ScriptableObject.DestroyImmediate(handle);
+            if (handle != null) ScriptableObject.DestroyImmediate(handle);
         }
 
         #endregion
@@ -269,59 +278,93 @@ namespace LevelEditor
             window.minSize = new Vector2(250f, 500f);
         }
 
+        public static void CloseWindow()
+        {
+            window?.Close();
+        }
+
         public static void Reload()
         {
             window?.Close();
             OpenWindow();
         }
 
-        public static void CloseWindow()
+        private bool Setup()
         {
-            window?.Close();
-        }
+            bool result;
 
-        private void Setup()
-        {
-            handle = ScriptableObject.CreateInstance<LevelEditorHandle>();
+            result = CheckEditorPath();
+            if (!result)
+            {
+                return false;
+            }
+           
+            result = LoadAssetEditorData();
+            if (!result)
+            {
+                return false;
+            }
 
-            LoadData();
+            result = LoadEditorData();
+            if (!result)
+            {
+                return false;
+            }
+
             LoadLevelPartsLists();
+            handle = ScriptableObject.CreateInstance<LevelEditorHandle>();
+            LevelEditorStyles.EditorData = editorData;
             LevelEditorStyles.SetStyles();
 
-            if (editorData == null) return;
             if (editorData.previewMaterial != null) previewMaterial = editorData.previewMaterial;
             if (editorData.LevelEditorGridButtonHeight != 0) gridSelectionHeight = editorData.LevelEditorGridButtonHeight;
             if (editorData.LevelEditorGridButtonWidth != 0) gridSelectionWidth = editorData.LevelEditorGridButtonWidth;
 
             SetActiveObject(0, 0);
+
+            return true;
         }
 
-        private void LoadData()
+        private bool CheckEditorPath()
         {
             string[] path = AssetDatabase.FindAssets("LevelEditor");
-            string dataPath = AssetDatabase.GUIDToAssetPath(path[0]);
+            dataPath = AssetDatabase.GUIDToAssetPath(path[0]);
 
             if (dataPath == string.Empty)
             {
                 Debug.LogError("Could not find LevelEditor Path");
-                window?.Close();
+               return false;
             }
+            return true;
+        }
 
-            editorData = AssetDatabase.LoadAssetAtPath<EditorData>(dataPath +"/DataEditor/Settings.asset");
+        private bool LoadEditorData()
+        {
+            editorData = AssetDatabase.LoadAssetAtPath<EditorData>(dataPath + "/DataEditor/Settings.asset");
 
-             if (editorData == null)
-             {
-                 Debug.LogError("Could not load EditorData");
-                 window?.Close();
-            } 
-            
+            if (editorData == null)
+            {
+                Debug.LogError("Could not load EditorData");
+                return false;
+            }
+            return true;         
+        }
+
+        private bool LoadAssetEditorData()
+        {
             assetEditorData = AssetDatabase.LoadAssetAtPath<AssetEditorData>(dataPath + "/DataEditor/AssetEditorData.asset");
+
+            if (assetEditorData == null)
+            {
+                Debug.LogError("Could not load EditorData");
+                return false;
+            }
+            return true;
         }
 
         private void LoadLevelPartsLists()
         {
             assetDataListCount = assetEditorData.createdPartsLists.Count;
-
             if (assetDataListCount == 0) return;
 
             levelAssetLists = new PartList[assetDataListCount];
@@ -366,8 +409,6 @@ namespace LevelEditor
 
         private void SaveGridLayoutOptions()
         {
-            
-
             editorData.LevelEditorGridButtonHeight = gridSelectionHeight;
             editorData.LevelEditorGridButtonWidth = gridSelectionWidth;
         }

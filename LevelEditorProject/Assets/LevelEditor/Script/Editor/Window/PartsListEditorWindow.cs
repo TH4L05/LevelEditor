@@ -9,6 +9,7 @@ public class PartsListEditorWindow : EditorWindow
     #region Fields
 
     private static PartsListEditorWindow window;
+    private string dataPath;
     private Editor editor;
     private static AssetEditorData assetEditorData;
     private string partListName;
@@ -171,9 +172,6 @@ public class PartsListEditorWindow : EditorWindow
 
     private void Setup()
     {
-        index = 0;
-        EditorIsActive = true;
-
         if (LevelEditorWindow.EditorIsActive)
         {           
             levelEditorWasEnabled = true;
@@ -181,19 +179,22 @@ public class PartsListEditorWindow : EditorWindow
             Debug.Log("LevelEditor gets closed to prevent causing Errors it will be reopen when PartsListEditor gets closed");
         }
 
-        try
-        {
-            assetEditorData = AssetDatabase.LoadAssetAtPath<AssetEditorData>("Assets/LevelEditor/DataEditor/AssetEditorData.asset");
-            LoadLists();
-        }
-        catch (System.Exception)
+        string[] path = AssetDatabase.FindAssets("LevelEditor");
+        dataPath = AssetDatabase.GUIDToAssetPath(path[0]);
+
+        assetEditorData = AssetDatabase.LoadAssetAtPath<AssetEditorData>( dataPath +"/DataEditor/AssetEditorData.asset");
+
+        if (assetEditorData == null)
         {
             Debug.LogError("COULD NOT LOAD ASSETDATALIST");
             window.Close();
-            throw;
+            return;
         }
 
-        if(PartListsCount > 0) CreateEditor();
+        EditorIsActive = true;
+        LoadLists();
+        index = 0;
+        if (PartListsCount > 0) CreateEditor();      
     }
 
     private void Destroy()
@@ -242,12 +243,12 @@ public class PartsListEditorWindow : EditorWindow
     {
         var list = new AssetData();
         var assetList = ScriptableObject.CreateInstance<PartList>();
-        var path = "Assets/LevelEditor/Data/" + name + ".asset";
+        var path = dataPath + "/Data/" + name + ".asset";
         AssetDatabase.CreateAsset(assetList, path);
         AssetDatabase.SaveAssets();
 
         list.assetList = AssetDatabase.LoadAssetAtPath<PartList>(path);
-        list.path = "Assets/LevelEditor/Data/" + name + ".asset";
+        list.path = path;
         return list;
     }
 
