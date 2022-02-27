@@ -7,11 +7,6 @@ using LevelEditor;
 [CustomEditor(typeof(EditorData), true)]
 public class EditorSettingsInspector : Editor
 {
-    private void OnEnable()
-    {
-        
-    }
-
     public override void OnInspectorGUI()
     {
         serializedObject.Update();

@@ -27,22 +27,6 @@ public class PartListInspector : Editor
         list.drawHeaderCallback = DrawHeader;
     }
 
-    private void OnValidate()
-    {
-        if (LevelEditorWindow.EditorIsActive && changes)
-        {
-            LevelEditorWindow.Reload();
-        }
-    }
-
-    private void OnDestroy()
-    {
-        if (LevelEditorWindow.EditorIsActive)
-        {
-            LevelEditorWindow.Reload();
-        }
-    }
-
     public override void OnInspectorGUI()
     {      
         serializedObject.Update();

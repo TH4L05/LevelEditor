@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5015287ec12ebf64aafd07f36f59d315, type: 3}
   m_Name: AssetEditorData
   m_EditorClassIdentifier: 
-  createdAssetDataLists: []
+  createdPartsLists: []

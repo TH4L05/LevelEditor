@@ -183,6 +183,7 @@ public class PartsListEditorWindow : EditorWindow
         dataPath = AssetDatabase.GUIDToAssetPath(path[0]);
 
         assetEditorData = AssetDatabase.LoadAssetAtPath<AssetEditorData>( dataPath +"/DataEditor/AssetEditorData.asset");
+        EditorUtility.SetDirty(assetEditorData);
 
         if (assetEditorData == null)
         {
