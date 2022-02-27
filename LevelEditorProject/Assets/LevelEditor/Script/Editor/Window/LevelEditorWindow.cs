@@ -31,7 +31,7 @@ namespace LevelEditor
         //selection grid
         private Vector2 scrollposition = Vector2.zero;
         private Vector2[] scrollpositions;
-        private PartList[] levelAssetLists;
+        private AssetList[] levelAssetLists;
         private List<GUIContent[]> guiContents = new List<GUIContent[]>();
         //private int[] gridIndices;
         //private int[] lastgridIndices;
@@ -115,7 +115,7 @@ namespace LevelEditor
             if (GUILayout.Button("PartsListEditor", GUILayout.Height(35), GUILayout.Width(250)))
             {
                 handle.SetToolBarIndex(0);
-                PartsListEditorWindow.OpenWindow();
+                AssetListEditorWindow.OpenWindow();
             }
 
             if (GUILayout.Button("Settings", GUILayout.Height(35), GUILayout.Width(250)))
@@ -273,7 +273,7 @@ namespace LevelEditor
         [MenuItem("Tools/LevelEditor/LevelEditorWindow")]
         public static void OpenWindow()
         {
-            if (PartsListEditorWindow.EditorIsActive) return;
+            if (AssetListEditorWindow.EditorIsActive) return;
             window = GetWindow<LevelEditorWindow>("Level Editor");
             window.minSize = new Vector2(250f, 500f);
         }
@@ -366,7 +366,7 @@ namespace LevelEditor
             assetDataListCount = assetEditorData.createdPartsLists.Count;
             if (assetDataListCount == 0) return;
 
-            levelAssetLists = new PartList[assetDataListCount];
+            levelAssetLists = new AssetList[assetDataListCount];
             //gridIndices = new int[assetDataListCount];
             //lastgridIndices = new int[assetDataListCount];
             foldOutTexts = new string[assetDataListCount];
@@ -375,7 +375,7 @@ namespace LevelEditor
 
             for (int i = 0; i < assetDataListCount; i++)
             {
-                levelAssetLists[i] = AssetDatabase.LoadAssetAtPath<PartList>(dataPath + assetEditorData.createdPartsLists[i].Path);
+                levelAssetLists[i] = AssetDatabase.LoadAssetAtPath<AssetList>(dataPath + assetEditorData.createdPartsLists[i].Path);
                 foldOutTexts[i] = levelAssetLists[i].name;
 
                 if (i == 0)

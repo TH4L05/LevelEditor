@@ -6,7 +6,7 @@ using UnityEngine;
 namespace LevelEditor
 {
     [System.Serializable]
-    public class LevelPart
+    public class LevelAsset
     {
         [SerializeField] string partName;
         [SerializeField] GameObject template;
@@ -15,8 +15,8 @@ namespace LevelEditor
         public GameObject Template => template;
     }
 
-    public class PartList : ScriptableObject
+    public class AssetList : ScriptableObject
     {
-        public List<LevelPart> parts = new List<LevelPart>();
+        public List<LevelAsset> parts = new List<LevelAsset>();
     }
 }

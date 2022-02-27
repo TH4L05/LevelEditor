@@ -5,8 +5,8 @@ using UnityEditor;
 using UnityEditorInternal;
 using LevelEditor;
 
-[CustomEditor(typeof(PartList), true)]
-public class PartListInspector : Editor
+[CustomEditor(typeof(AssetList), true)]
+public class AssetListInspector : Editor
 {
     #region Fields
 

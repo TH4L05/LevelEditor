@@ -9,14 +9,14 @@ namespace LevelEditor
     [System.Serializable]
     public class AssetData
     {
-        [SerializeField] PartList assetList;
+        [SerializeField] AssetList assetList;
         [SerializeField] string path;
 
-        public PartList AssetList => assetList;
+        public AssetList AssetList => assetList;
         public string Path => path;
 
 
-        public void SetList(PartList list, string path)
+        public void SetList(AssetList list, string path)
         {
             assetList = list;
             this.path = path;

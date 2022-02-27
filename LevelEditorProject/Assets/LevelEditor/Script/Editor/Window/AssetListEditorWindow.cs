@@ -4,11 +4,11 @@ using UnityEditor;
 using UnityEngine;
 using LevelEditor;
 
-public class PartsListEditorWindow : EditorWindow
+public class AssetListEditorWindow : EditorWindow
 {
     #region Fields
 
-    private static PartsListEditorWindow window;
+    private static AssetListEditorWindow window;
     private string dataPath;
     private Editor editor;
     private static AssetEditorData assetEditorData;
@@ -62,7 +62,7 @@ public class PartsListEditorWindow : EditorWindow
     [MenuItem("Tools/LevelEditor/PartsListsEditorWindow")]
     public static void OpenWindow()
     {
-        window = GetWindow<PartsListEditorWindow>("Part List Editor");
+        window = GetWindow<AssetListEditorWindow>("Part List Editor");
         window.minSize = new Vector2(400, 400);
     }
 
@@ -138,6 +138,8 @@ public class PartsListEditorWindow : EditorWindow
     /// </summary>
     private void CreateEditor()
     {
+        if (PartListsCount == 0) return;
+
         var selection = assetEditorData.createdPartsLists[index].AssetList;
         if (selection != null)
         {
@@ -243,12 +245,12 @@ public class PartsListEditorWindow : EditorWindow
     private AssetData CreateAsset(string name)
     {
         var list = new AssetData();
-        var assetList = ScriptableObject.CreateInstance<PartList>();
+        var assetList = ScriptableObject.CreateInstance<AssetList>();
         var listName = "/Data/" + name + ".asset";
         AssetDatabase.CreateAsset(assetList, dataPath + listName);
         AssetDatabase.SaveAssets();
 
-        list.SetList(AssetDatabase.LoadAssetAtPath<PartList>(dataPath + listName), listName);
+        list.SetList(AssetDatabase.LoadAssetAtPath<AssetList>(dataPath + listName), listName);
         return list;
     }
 
@@ -266,7 +268,7 @@ public class PartsListEditorWindow : EditorWindow
 
     private void DeleteAsset(AssetData data)
     {
-        AssetDatabase.DeleteAsset(data.Path);
+        AssetDatabase.DeleteAsset(dataPath + data.Path);
     }
 
     #endregion
