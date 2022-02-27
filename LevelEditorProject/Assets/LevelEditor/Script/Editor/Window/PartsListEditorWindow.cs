@@ -248,7 +248,7 @@ public class PartsListEditorWindow : EditorWindow
         AssetDatabase.SaveAssets();
 
         list.assetList = AssetDatabase.LoadAssetAtPath<PartList>(path);
-        list.path = path;
+        list.path = "/Data/" + name + ".asset"; ;
         return list;
     }
 

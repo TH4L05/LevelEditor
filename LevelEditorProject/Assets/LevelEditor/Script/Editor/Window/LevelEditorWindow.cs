@@ -319,7 +319,6 @@ namespace LevelEditor
             if (editorData.previewMaterial != null) previewMaterial = editorData.previewMaterial;
             if (editorData.LevelEditorGridButtonHeight != 0) gridSelectionHeight = editorData.LevelEditorGridButtonHeight;
             if (editorData.LevelEditorGridButtonWidth != 0) gridSelectionWidth = editorData.LevelEditorGridButtonWidth;
-
             SetActiveObject(0, 0);
 
             return true;
@@ -376,7 +375,7 @@ namespace LevelEditor
 
             for (int i = 0; i < assetDataListCount; i++)
             {
-                levelAssetLists[i] = AssetDatabase.LoadAssetAtPath<PartList>(assetEditorData.createdPartsLists[i].path);
+                levelAssetLists[i] = AssetDatabase.LoadAssetAtPath<PartList>(dataPath + assetEditorData.createdPartsLists[i].path);
                 foldOutTexts[i] = levelAssetLists[i].name;
 
                 if (i == 0)
@@ -415,6 +414,9 @@ namespace LevelEditor
 
         void SetActiveObject(int listIndex, int partIndex)
         {
+            if (assetDataListCount == 0) return;
+            if (levelAssetLists[listIndex].parts[partIndex].Template == null) return;
+
             activeObj = levelAssetLists[listIndex].parts[partIndex].Template;
             handle.SetActiveObject(activeObj, previewMaterial);
         }
