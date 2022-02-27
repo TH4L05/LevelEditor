@@ -9,8 +9,18 @@ namespace LevelEditor
     [System.Serializable]
     public class AssetData
     {
-        public PartList assetList;
-        public string path;
+        [SerializeField] PartList assetList;
+        [SerializeField] string path;
+
+        public PartList AssetList => assetList;
+        public string Path => path;
+
+
+        public void SetList(PartList list, string path)
+        {
+            assetList = list;
+            this.path = path;
+        }
     }
 
     public class AssetEditorData : ScriptableObject

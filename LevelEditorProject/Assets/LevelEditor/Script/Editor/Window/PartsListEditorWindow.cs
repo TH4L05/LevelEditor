@@ -138,7 +138,7 @@ public class PartsListEditorWindow : EditorWindow
     /// </summary>
     private void CreateEditor()
     {
-        var selection = assetEditorData.createdPartsLists[index].assetList;
+        var selection = assetEditorData.createdPartsLists[index].AssetList;
         if (selection != null)
         {
             editor = Editor.CreateEditor(selection);
@@ -165,7 +165,7 @@ public class PartsListEditorWindow : EditorWindow
         partListNames = new string[PartListsCount];
         for (int i = 0; i < assetEditorData.createdPartsLists.Count; i++)
         {
-            partListNames[i] = assetEditorData.createdPartsLists[i].assetList.name;
+            partListNames[i] = assetEditorData.createdPartsLists[i].AssetList.name;
         }
     }
 
@@ -243,12 +243,11 @@ public class PartsListEditorWindow : EditorWindow
     {
         var list = new AssetData();
         var assetList = ScriptableObject.CreateInstance<PartList>();
-        var path = dataPath + "/Data/" + name + ".asset";
-        AssetDatabase.CreateAsset(assetList, path);
+        var listName = "/Data/" + name + ".asset";
+        AssetDatabase.CreateAsset(assetList, dataPath + listName);
         AssetDatabase.SaveAssets();
 
-        list.assetList = AssetDatabase.LoadAssetAtPath<PartList>(path);
-        list.path = "/Data/" + name + ".asset"; ;
+        list.SetList(AssetDatabase.LoadAssetAtPath<PartList>(dataPath + listName), listName);
         return list;
     }
 
@@ -266,7 +265,7 @@ public class PartsListEditorWindow : EditorWindow
 
     private void DeleteAsset(AssetData data)
     {
-        AssetDatabase.DeleteAsset(data.path);
+        AssetDatabase.DeleteAsset(data.Path);
     }
 
     #endregion

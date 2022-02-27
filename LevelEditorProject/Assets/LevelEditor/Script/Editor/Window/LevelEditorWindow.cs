@@ -375,7 +375,7 @@ namespace LevelEditor
 
             for (int i = 0; i < assetDataListCount; i++)
             {
-                levelAssetLists[i] = AssetDatabase.LoadAssetAtPath<PartList>(dataPath + assetEditorData.createdPartsLists[i].path);
+                levelAssetLists[i] = AssetDatabase.LoadAssetAtPath<PartList>(dataPath + assetEditorData.createdPartsLists[i].Path);
                 foldOutTexts[i] = levelAssetLists[i].name;
 
                 if (i == 0)
