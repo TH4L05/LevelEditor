@@ -25,7 +25,8 @@ namespace LevelEditor
         //Object
         private GameObject activeObj;
         public Material previewMaterial;
-        private Vector3 objRotation;
+        private Vector3 objRotation = Vector3.zero;
+        private Vector3 objRotationLast = Vector3.zero;
         private Vector3 objOffset = new Vector3(0f, 1.5f, 0f);
         
         //selection grid
@@ -64,6 +65,7 @@ namespace LevelEditor
 
         private void OnGUI()
         {
+            
             if (!EditorIsActive) return;
 
             TopLabel();
@@ -91,12 +93,23 @@ namespace LevelEditor
             EditorGUILayout.Separator();
 
             FoldoutArea();
+
+            RepaintWindow();   
         }
 
         private void OnDestroy()
         {
             EditorIsActive = false;
             if (handle != null) ScriptableObject.DestroyImmediate(handle);
+        }
+
+        private void RepaintWindow()
+        {
+            if (objRotation != objRotationLast)
+            {
+                window.Repaint();
+                objRotationLast = objRotation;
+            }
         }
 
         #endregion
@@ -129,6 +142,12 @@ namespace LevelEditor
         private void Toolbar()
         {
             toolbarIndex = GUILayout.Toolbar(toolbarIndex, texts, GUILayout.Height(35));
+
+            if (toolbarIndex == 1)
+            {
+                SceneViewActive();
+            }
+
             handle.SetToolBarIndex(toolbarIndex);
             GUILayout.Space(3);
         }
@@ -412,13 +431,29 @@ namespace LevelEditor
             editorData.LevelEditorGridButtonWidth = gridSelectionWidth;
         }
 
-        void SetActiveObject(int listIndex, int partIndex)
+        private void SetActiveObject(int listIndex, int partIndex)
         {
             if (assetDataListCount == 0) return;
             if (levelAssetLists[listIndex].parts[partIndex].Template == null) return;
 
             activeObj = levelAssetLists[listIndex].parts[partIndex].Template;
             handle.SetActiveObject(activeObj, previewMaterial);
+        }
+
+        #endregion
+
+        #region TEST
+
+        public void UpdateRotation(float angle)
+        {
+            objRotation.y += angle;
+            if (objRotation.y == 360f) objRotation.y = 0f;
+            //handle.SetHandleRotation(objRotation);
+        }
+
+        public void SceneViewActive()
+        {
+            GetWindow<SceneView>();
         }
 
         #endregion

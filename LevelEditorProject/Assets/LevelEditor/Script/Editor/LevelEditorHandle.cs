@@ -119,14 +119,115 @@ namespace LevelEditor
         {
             if (levelEditorToolbarIndex == 0) return;
 
-            UpdateHandlePosition();
+            UpdateRepaint();        
             UpdateIsMouseInValidArea(sceneView.position);
-            UpdateRepaint();
-            DrawObjectPreview();
+            UpdateHandlePosition();           
+            DrawObjectPreview();            
             LevelEditorObjectPlacement();
+            KeyboardEvents();
         }
 
-        void UpdateHandlePosition()
+
+        private void KeyboardEvents()
+        {
+            if (isMouseInValidArea)
+            {
+                Event e = Event.current;
+                if (e?.isKey == true)
+                {
+                    switch (e.type)
+                    {
+                        case EventType.MouseDown:
+                            break;
+
+                        case EventType.MouseUp:
+                            break;
+
+                        case EventType.MouseMove:
+                            break;
+
+                        case EventType.MouseDrag:
+                            break;
+
+                        case EventType.KeyDown:
+
+                            if (levelEditorToolbarIndex == 0) return;
+
+                            switch (e.keyCode)
+                            {
+                                case KeyCode.Y:
+                                    RotateYPlus();
+                                    break;
+
+                                case KeyCode.X:
+                                    RotateYMinus();
+                                    break;
+                            }
+
+                            break;
+                        case EventType.KeyUp:
+                            break;
+
+                        case EventType.ScrollWheel:
+                            break;
+
+                        case EventType.Repaint:
+                            break;
+
+                        case EventType.Layout:
+                            break;
+
+                        case EventType.DragUpdated:
+                            break;
+
+                        case EventType.DragPerform:
+                            break;
+
+                        case EventType.DragExited:
+                            break;
+
+                        case EventType.Ignore:
+                            break;
+
+                        case EventType.Used:
+                            break;
+
+                        case EventType.ValidateCommand:
+                            break;
+
+                        case EventType.ExecuteCommand:
+                            break;
+
+                        case EventType.ContextClick:
+                            break;
+
+                        case EventType.MouseEnterWindow:
+                            break;
+
+                        case EventType.MouseLeaveWindow:
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            
+        }
+
+        private void UpdateIsMouseInValidArea(Rect sceneViewRect)
+        {
+            bool isInValidArea = Event.current.mousePosition.y < sceneViewRect.height - 35;
+
+            if (isInValidArea != isMouseInValidArea)
+            {
+                isMouseInValidArea = isInValidArea;
+                SceneView.RepaintAll();
+            }
+        }
+
+        private void UpdateHandlePosition()
         {
             if (Event.current == null) return;
 
@@ -147,20 +248,9 @@ namespace LevelEditor
                 currentHandlePosition.y = Mathf.Floor(hit.point.y - hit.normal.y * 0.001f + offset.y);
                 currentHandlePosition.z = Mathf.Floor(hit.point.z - hit.normal.z * 0.001f + offset.z);
             }
-        }
+        }    
 
-        void UpdateIsMouseInValidArea(Rect sceneViewRect)
-        {
-            bool isInValidArea = Event.current.mousePosition.y < sceneViewRect.height - 35;
-
-            if (isInValidArea != isMouseInValidArea)
-            {
-                isMouseInValidArea = isInValidArea;
-                SceneView.RepaintAll();
-            }
-        }
-
-        void UpdateRepaint()
+        private void UpdateRepaint()
         {
             if (currentHandlePosition != oldHandlePosition)
             {
@@ -169,7 +259,7 @@ namespace LevelEditor
             }
         }
 
-        void DrawObjectPreview()
+        private void DrawObjectPreview()
         {
             if (isMouseInValidArea == false)
             {
@@ -180,7 +270,7 @@ namespace LevelEditor
             DrawHandleCube(currentHandlePosition, objectScale);
         }
 
-        void DrawHandleCube(Vector3 position, Vector3 scale)
+        private void DrawHandleCube(Vector3 position, Vector3 scale)
         {
             if (scale == Vector3.zero)
             {
@@ -201,13 +291,13 @@ namespace LevelEditor
             }
         }
 
-        void LevelEditorObjectPlacement()
+        private void LevelEditorObjectPlacement()
         {
             if (levelEditorToolbarIndex == 0) return;
 
             //By creating a new ControlID here we can grab the mouse input to the SceneView and prevent Unitys default mouse handling from happening
             //FocusType.Passive means this control cannot receive keyboard input since we are only interested in mouse input
-            int controlId = GUIUtility.GetControlID(FocusType.Passive);
+            int controlId = GUIUtility.GetControlID(FocusType.Keyboard);
 
             if (Event.current.type == EventType.MouseDown && Event.current.button == 0 &&
                 Event.current.alt == false && Event.current.shift == false && Event.current.control == false)
@@ -224,13 +314,12 @@ namespace LevelEditor
                     }
                 }
             }
-
+            
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
             {
                 SetToolBarIndex(0);
             }
             HandleUtility.AddDefaultControl(controlId);
-
         }
 
         #endregion
@@ -263,6 +352,22 @@ namespace LevelEditor
         {
             handleOffset = offset;
         }
+
+
+        private void RotateYPlus()
+        {
+            Debug.Log("RotatePLUS");
+            additionalRotation.y += 45f;
+            if (additionalRotation.y == 360f) additionalRotation.y = 0f;
+        }
+
+        private void RotateYMinus()
+        {
+            Debug.Log("RotateMINUS");
+            additionalRotation.y -= 45f;
+            if (additionalRotation.y == -360f) additionalRotation.y = 0f;
+        }
+
 
         #endregion
     }
