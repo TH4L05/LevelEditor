@@ -356,16 +356,19 @@ namespace LevelEditor
 
         private void RotateYPlus()
         {
-            Debug.Log("RotatePLUS");
+            //Debug.Log("RotatePLUS");
             additionalRotation.y += 45f;
             if (additionalRotation.y == 360f) additionalRotation.y = 0f;
+            LevelEditorWindow.UpdateRotation(additionalRotation);
+            
         }
 
         private void RotateYMinus()
         {
-            Debug.Log("RotateMINUS");
+            //Debug.Log("RotateMINUS");
             additionalRotation.y -= 45f;
             if (additionalRotation.y == -360f) additionalRotation.y = 0f;
+            LevelEditorWindow.UpdateRotation(additionalRotation);
         }
 
 

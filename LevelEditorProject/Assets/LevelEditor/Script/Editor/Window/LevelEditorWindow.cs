@@ -25,7 +25,7 @@ namespace LevelEditor
         //Object
         private GameObject activeObj;
         public Material previewMaterial;
-        private Vector3 objRotation = Vector3.zero;
+        private static Vector3 objRotation = Vector3.zero;
         private Vector3 objRotationLast = Vector3.zero;
         private Vector3 objOffset = new Vector3(0f, 1.5f, 0f);
         
@@ -92,9 +92,7 @@ namespace LevelEditor
             EditorGUILayout.Space(3f);
             EditorGUILayout.Separator();
 
-            FoldoutArea();
-
-            RepaintWindow();   
+            FoldoutArea(); 
         }
 
         private void OnDestroy()
@@ -105,11 +103,7 @@ namespace LevelEditor
 
         private void RepaintWindow()
         {
-            if (objRotation != objRotationLast)
-            {
-                window.Repaint();
-                objRotationLast = objRotation;
-            }
+            window.Repaint();
         }
 
         #endregion
@@ -145,7 +139,7 @@ namespace LevelEditor
 
             if (toolbarIndex == 1)
             {
-                SceneViewActive();
+                ActivateSceneView();
             }
 
             handle.SetToolBarIndex(toolbarIndex);
@@ -444,14 +438,14 @@ namespace LevelEditor
 
         #region TEST
 
-        public void UpdateRotation(float angle)
+        public static void UpdateRotation(Vector3 rotation)
         {
-            objRotation.y += angle;
-            if (objRotation.y == 360f) objRotation.y = 0f;
-            //handle.SetHandleRotation(objRotation);
+            objRotation = rotation;
+            Debug.Log(objRotation);
+            window.Repaint();
         }
 
-        public void SceneViewActive()
+        public void ActivateSceneView()
         {
             GetWindow<SceneView>();
         }
