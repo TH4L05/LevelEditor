@@ -10,6 +10,7 @@ namespace LevelEditor
         private static EditorSettingsWindow window;
         private EditorData editorData;
         private Editor editor;
+        private string dataPath;
 
         public static void OpenWindow()
         {
@@ -29,24 +30,44 @@ namespace LevelEditor
 
         private void OnEnable()
         {
-            Setup();
-        }
+            bool setupResult = Setup();
 
-        private void Setup()
-        {
-            try
-            {
-                editorData = AssetDatabase.LoadAssetAtPath<EditorData>("Assets/LevelEditor/DataEditor/EditorSettings.asset");
-            }
-            catch (System.Exception)
-            {
-                Debug.LogError("Could not Load EditorData");
+            if (!setupResult)
+            { 
                 window.Close();
-                throw;
+                Debug.LogError("Setup Failed");
+            }
+        }
+
+        private bool Setup()
+        {
+            bool result;
+
+            result = CheckEditorPath();
+            if (!result)
+            {
+                return false;
             }
 
+            editorData = AssetDatabase.LoadAssetAtPath<EditorData>(dataPath + "/DataEditor/Settings.asset");        
             editor = Editor.CreateEditor(editorData);
+            return true;
         }
+
+        private bool CheckEditorPath()
+        {
+            string[] path = AssetDatabase.FindAssets("LevelEditor");
+            dataPath = AssetDatabase.GUIDToAssetPath(path[0]);
+
+            if (dataPath == string.Empty)
+            {
+                Debug.LogError("Could not find LevelEditor Path");
+                return false;
+            }
+            return true;
+        }
+
+
     }
 }
 

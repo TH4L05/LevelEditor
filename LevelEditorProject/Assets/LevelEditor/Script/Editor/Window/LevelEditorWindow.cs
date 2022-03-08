@@ -59,6 +59,7 @@ namespace LevelEditor
             }
             else
             {
+                window.Close();
                 Debug.LogError("Setup Failed");
             }
         }

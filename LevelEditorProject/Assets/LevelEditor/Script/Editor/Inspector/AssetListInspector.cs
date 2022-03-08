@@ -30,7 +30,7 @@ public class AssetListInspector : Editor
     public override void OnInspectorGUI()
     {      
         serializedObject.Update();
-        //base.DrawDefaultInspector();
+        //base.DrawDefaultInspector();  
         list.DoLayoutList();
 
         //Layout without ReorderableList 
@@ -57,10 +57,10 @@ public class AssetListInspector : Editor
     {
         SerializedProperty element = list.serializedProperty.GetArrayElementAtIndex(index);
 
-        EditorGUI.LabelField(new Rect(rect.x, rect.y, 50, EditorGUIUtility.singleLineHeight), "Name:");
-        EditorGUI.PropertyField(new Rect(rect.x + 55, rect.y, 200, EditorGUIUtility.singleLineHeight), element.FindPropertyRelative("partName"), GUIContent.none);
-        EditorGUI.LabelField(new Rect(rect.x + 265, rect.y, 50, EditorGUIUtility.singleLineHeight), "Prefab:");
-        EditorGUI.PropertyField(new Rect(rect.x + 320, rect.y, 200, EditorGUIUtility.singleLineHeight), element.FindPropertyRelative("template"), GUIContent.none);
+        EditorGUI.LabelField(new Rect(rect.x, rect.y, 50f, EditorGUIUtility.singleLineHeight), "Name:");
+        EditorGUI.PropertyField(new Rect(rect.x + 55f, rect.y, 200f, EditorGUIUtility.singleLineHeight), element.FindPropertyRelative("partName"), GUIContent.none);
+        EditorGUI.LabelField(new Rect(rect.x + 265f, rect.y, 50f, EditorGUIUtility.singleLineHeight), "Prefab:");
+        EditorGUI.PropertyField(new Rect(rect.x + 320f, rect.y, 200f, EditorGUIUtility.singleLineHeight), element.FindPropertyRelative("template"), GUIContent.none);
     }
 
     void DrawHeader(Rect rect)
