@@ -287,7 +287,12 @@ namespace LevelEditor
         [MenuItem("Tools/LevelEditor/LevelEditorWindow")]
         public static void OpenWindow()
         {
-            if (AssetListEditorWindow.EditorIsActive) return;
+            if (AssetListEditorWindow.EditorIsActive)
+            {
+                Debug.LogWarning("Could not open Editor until AssetListEditor get's closed");
+                return;
+            }
+
             window = GetWindow<LevelEditorWindow>("Level Editor");
             window.minSize = new Vector2(250f, 500f);
         }
